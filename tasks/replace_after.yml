@@ -1,0 +1,10 @@
+#https://www.regextutorial.org/positive-and-negative-lookahead-assertions.php
+- name: Match all and replace next line
+  replace: >
+    dest={{ loop_item.path }}
+    regexp="({{ loop_item.find }}.*\n)(?!{{ loop_item.insert }})"
+    replace="\1{{ loop_item.insert }}\n"
+  loop: 
+    "{{ findlist }}"
+  loop_control:
+    loop_var: loop_item    

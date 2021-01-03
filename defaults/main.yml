@@ -1,0 +1,23 @@
+---
+user_path: "/root"
+configure_firewall: false
+configure_ipv4_hostname: true
+configure_ipv6_hostname: false
+
+packages:
+  - curl
+  - wget
+  - dnsutils
+  - git
+  - sudo
+  - nano
+  - python3
+  - python3-pip
+  - python3-setuptools
+  - haveged
+
+pippackages:
+  - pyaml
+  - psycopg2-binary
+  - jmespath
+  #- dnspython

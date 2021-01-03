@@ -1,0 +1,41 @@
+---
+- name: Ensure ufw and fail2ban packages
+  apt:
+    name:
+      - ufw
+      - fail2ban
+    state: latest
+
+#In some constellations iptables break similar to https://github.com/ansible/ansible/issues/52733
+#Its not that often, may be because of timing - no way to get around by rerunning ansible if it ever happens
+#This helps: https://tomschlick.com/2017/05/24/dealing-with-ufw-chain-already-exists
+- name: Reset UFW
+  ufw:
+    state: reset
+
+- name: Allow ssh in ufw
+  ufw:
+    rule: limit
+    name: OpenSSH
+    state: enabled
+
+- name: Allow everything out and enable UFW
+  ufw:
+    direction: outgoing
+    policy: allow
+    state: enabled
+
+- name: Allow default nothing in and enable UFW
+  ufw:
+    direction: incoming
+    policy: deny
+    state: enabled
+
+- name: ensure fail2ban uses ufw
+  copy:
+    content: |
+      [DEFAULT]
+      banaction = ufw
+    mode: 0644
+    dest: /etc/fail2ban/jail.local
+  notify: restart fail2ban

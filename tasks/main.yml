@@ -1,0 +1,88 @@
+---
+- name: Remove hostname from hosts file
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ ansible_hostname }}$"
+    state: absent
+    backup: yes
+  when: configure_ipv4_hostname|bool or configure_ipv6_hostname|bool
+
+- name: Add Hostname
+  hostname:
+    name: "{{ inventory_hostname_short }}"
+  when: configure_ipv4_hostname|bool or configure_ipv6_hostname|bool
+
+- name: Add block to hosts
+  when: configure_ipv4_hostname|bool
+  blockinfile:
+    path: /etc/hosts
+    block: |
+       {{ hostvars[inventory_hostname].ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} {{ inventory_hostname }} {{ inventory_hostname_short }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK IP4"
+
+- name: Add block to hosts
+  when: configure_ipv6_hostname|bool
+  blockinfile:
+    path: /etc/hosts
+    block: |
+       {{ hostvars[inventory_hostname].ansible_default_ipv6.address|default(ansible_all_ipv6_addresses[0]) }} {{ inventory_hostname }} {{ inventory_hostname_short }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK IP6"
+
+- name: Update apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: safe
+
+- name: Ensure basic packages
+  apt:
+    name:
+      "{{ item }}"
+    state: latest
+  loop:
+    "{{ packages }}"
+
+- name: Ensure that pip packages are installed
+  pip:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    "{{ pippackages }}"
+
+- name: Ensure clean motd
+  file:
+    path: "/etc/update-motd.d/{{item}}"
+    state: absent
+  with_items:
+    - 10-help-text
+    - 50-motd-news
+    - 80-esm
+    - 80-livepatch
+
+- name: Ensure news updater doesn't run
+  when: ansible_distribution == 'Ubuntu'
+  systemd:
+    name: motd-news
+    enabled: no
+    masked: yes
+
+- name: Add ansible management notice 
+  copy:
+    content: |
+      #!/bin/sh
+      printf "\n"
+      printf "This system is managed with ansible\n"
+      printf "\n"
+    mode: 0755
+    dest: /etc/update-motd.d/11-help-text
+
+- name: Ensure that LANG from ssh clients is not used
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "AcceptEnv LANG LC_*"
+    state: absent
+  notify: restart sshd
+
+- name: Setup basic firewall && fail2ban
+  import_tasks: firewall.yml
+  when: configure_firewall|bool
