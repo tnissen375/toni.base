@@ -1,4 +1,17 @@
 ---
+- name: Create IP List for bypass
+  when: groups['auth_bypass'] is defined and configure_ipv4_hostname|bool
+  set_fact: 
+     auth_bypass_ips={%for host in groups['auth_bypass']%}'{{hostvars[host].ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0])}}'{% if not loop.last %},{% endif %}{% endfor %}
+
+- name: Create IP List for bypass
+  when: groups['auth_bypass'] is defined and configure_ipv6_hostname|bool
+  set_fact: 
+     auth_bypass_ips={%for host in groups['auth_bypass']%}'{{hostvars[host].ansible_default_ipv6.address|default(ansible_all_ipv6_addresses[0])}}'{% if not loop.last %},{% endif %}{% endfor %}
+
+# - debug:
+#     var: auth_bypass_ips
+
 - name: Remove hostname from hosts file
   lineinfile:
     dest: /etc/hosts

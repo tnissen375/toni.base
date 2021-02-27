@@ -1,0 +1,74 @@
+---
+- name: sshdconfig
+  lineinfile:
+    regexp: '^AllowUsers'
+    line: "AllowUsers {{ ansible_user | default(ansible_user_id) }}"
+    path: /etc/ssh/sshd_config
+    state: present
+  #notify: restart sshd
+
+- name: sshdconfig
+  lineinfile:
+    regexp: '^PermitRootLogin'
+    line: "PermitRootLogin no"
+    path: /etc/ssh/sshd_config
+    state: present
+
+- name: sshdconfig
+  lineinfile:
+    regexp: '^PubkeyAuthentication'
+    line: "PubkeyAuthentication yes"
+    path: /etc/ssh/sshd_config
+    state: present
+
+- name: sshdconfig
+  lineinfile:
+    regexp: '^PasswordAuthentication'
+    line: "PasswordAuthentication no"
+    path: /etc/ssh/sshd_config
+    state: present
+
+- name: sshdconfig
+  lineinfile:
+    regexp: '^AllowTcpForwarding'
+    line: "AllowTcpForwarding yes"
+    path: /etc/ssh/sshd_config
+    state: present
+
+- name: Load kernel module
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  ignore_errors: true
+  loop:
+    "{{ kernel_modules }}"
+
+#https://computingforgeeks.com/install-kubernetes-production-cluster-using-rancher-rke/
+- name: Disable SWAP because kubernetes can't work with swap enabled (1/2)
+  shell: |
+    swapoff -a
+  
+- name: Disable SWAP in fstab because kubernetes can't work with swap enabled (2/2)
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+.*)$'
+    replace: '# \1'
+
+- name: Modify sysctl entries
+  sysctl:
+    name: '{{ item.key }}'
+    value: '{{ item.value }}'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  loop:
+    - {key: net.bridge.bridge-nf-call-ip6tables, value: 1}
+    - {key: net.bridge.bridge-nf-call-iptables,  value: 1}
+    - {key: net.ipv4.ip_forward,  value: 1}
+
+- name: automatic iscsi startup
+  lineinfile:
+    regexp: '^node.startup'
+    line: "node.startup = automatic"
+    path: /etc/iscsi/iscsid.conf
+    state: present
