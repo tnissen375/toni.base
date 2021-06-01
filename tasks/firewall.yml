@@ -21,6 +21,7 @@
 #Its not that often, may be because of timing - no way to get around by rerunning ansible if it ever happens
 #This helps: https://tomschlick.com/2017/05/24/dealing-with-ufw-chain-already-exists
 - name: Reset UFW
+  when: reset_ufw|bool
   ufw:
     state: reset
 

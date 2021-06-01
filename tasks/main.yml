@@ -117,6 +117,14 @@
     state: absent
   notify: restart sshd
 
+- name: Load kernel module
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  ignore_errors: true
+  loop:
+    "{{ kernel_modules }}"
+
 - name: Setup basic firewall && fail2ban
   import_tasks: firewall.yml
   when: configure_firewall|bool

@@ -3,6 +3,7 @@ user_path: "/root"
 configure_firewall: false
 configure_ipv4_hostname: true
 configure_ipv6_hostname: false
+reset_ufw: true
 
 packages:
   - curl
@@ -15,9 +16,22 @@ packages:
   - python3-pip
   - python3-setuptools
   - haveged
+  - make
 
 pippackages:
   - pyaml
   - psycopg2-binary
   - jmespath
   #- dnspython
+
+kernel_modules:
+  - br_netfilter
+  - ip6_udp_tunnel
+  - ip_set 
+  - ip_set_hash_ip
+  - ip_set_hash_net
+  - iptable_filter
+  - iptable_nat
+  - iptable_mangle
+  - iptable_raw
+  - nf_conntrack_netlink
