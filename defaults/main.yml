@@ -22,6 +22,7 @@ pippackages:
   - pyaml
   - psycopg2-binary
   - jmespath
+  - netaddr
   #- dnspython
 
 
