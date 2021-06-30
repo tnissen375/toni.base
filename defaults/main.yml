@@ -23,6 +23,7 @@ pippackages:
   - psycopg2-binary
   - jmespath
   - netaddr
+  - hcloud
   #- dnspython
 
 
