@@ -89,13 +89,6 @@
     mode: 0755
     dest: /etc/update-motd.d/11-help-text
 
-#- name: remove Root login
-#  lineinfile:
-#    regexp: '^PermitRootLogin'
-#    line: "PermitRootLogin no"
-#    path: /etc/ssh/sshd_config
-#    state: present
-
 - name: activate SSH PubKey
   lineinfile:
     regexp: '^PubkeyAuthentication'
@@ -109,7 +102,19 @@
     line: "PasswordAuthentication no"
     path: /etc/ssh/sshd_config
     state: present
-    
+
+# - name: remove Root login
+#   lineinfile:
+#    regexp: '^PermitRootLogin'
+#    line: "PermitRootLogin no"
+#    path: /etc/ssh/sshd_config
+#    state: present
+
+- name: Restart ssh
+  service:
+    name: ssh
+    state: restarted
+
 - name: Ensure that LANG from ssh clients is not used
   lineinfile:
     path: /etc/ssh/sshd_config
