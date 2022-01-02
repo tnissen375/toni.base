@@ -1,0 +1,8 @@
+---
+- name: reload nginx stack
+  command: make {{ cmd }} {{ cmd_args }}
+  args:
+    chdir: "{{ user_path }}/{{ stack }}"
+  register: result_make
+
+- debug: var=result_make.stdout_lines
