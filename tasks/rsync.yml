@@ -5,7 +5,7 @@
     recurse: yes
 
 - name: "Synchronization with exclude src to dest - {{ mode }}"
-  when: ex is defined
+  when: ex is defined and ex!=""
   synchronize:
     mode: "{{ mode }}"
     src: "{{ src }}"
@@ -15,7 +15,7 @@
   register: result_rsync
 
 - name: "Synchronization src to dest - {{ mode }}"
-  when: ex is undefined
+  when: ex is undefined or ex ==""
   synchronize:
     mode: "{{ mode }}"
     src: "{{ src }}"
@@ -23,6 +23,6 @@
   register: result_rsync2
 
 - debug: var=result_rsync.stdout_lines
-  when: ex is defined
+  when: ex is defined and ex!=""
 - debug: var=result_rsync2.stdout_lines
-  when: ex is undefined
+  when: ex is undefined or ex ==""
