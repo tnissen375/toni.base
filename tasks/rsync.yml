@@ -1,4 +1,9 @@
 ---
+- file:
+    state: directory
+    path: "{{ dest }}"
+    recurse: yes
+
 - name: "Synchronization with exclude src to dest - {{ mode }}"
   when: ex
   synchronize:
