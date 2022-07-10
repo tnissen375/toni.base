@@ -15,12 +15,16 @@ packages:
   - python3
   - python3-pip
   - python3-setuptools
+  - python3-dev 
+  - libpq-dev
   - haveged
   - make
-  
+
+#pip to update to latest  
 pippackages:
+  - pip
   - pyaml
-  - psycopg2-binary
+  - psycopg
   - jmespath
   - netaddr
   - hcloud
