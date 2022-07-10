@@ -1,0 +1,16 @@
+---
+- name: Add block to hosts
+  when: configure_ipv4_stack_hostname|default(False)
+  blockinfile:
+    path: /etc/hosts
+    block: |
+       {{ hostvars[inventory_hostname].ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} {{ nginx_subdomain }}{{ nginx_domain }}
+    marker: "# {mark} {{ deploy_name }} ANSIBLE MANAGED BLOCK IP4"
+
+- name: Add block to hosts
+  when: configure_ipv6_stack_hostname|default(False)
+  blockinfile:
+    path: /etc/hosts
+    block: |
+       {{ hostvars[inventory_hostname].ansible_default_ipv6.address|default(ansible_all_ipv6_addresses[0]) }} {{ nginx_subdomain }}{{ nginx_domain }}
+    marker: "# {mark} {{ deploy_name }} ANSIBLE MANAGED BLOCK IP6"
